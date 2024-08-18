@@ -11,9 +11,8 @@ class RAGService:
         documents = self.document_repo.get_documents(query)
         print(f"Documents: {documents}")
         context = " ".join([doc.content for doc in documents])
-        prompt = f"{context}\n\nAnswer the following question:\n{query}"
-        return self.openai_adapter.generate_text(prompt)
+        return self.openai_adapter.generate_text(prompt=query, retrieval_context=context)
 
-    def save_document(self,  content: str) -> None:
+    def save_document(self, content: str) -> None:
         document = Document(content=content)
         self.document_repo.save_document(document)

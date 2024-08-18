@@ -16,5 +16,5 @@ class DocumentRepositoryPort(ABC):
 
 class OpenAIPort(ABC):
     @abstractmethod
-    def generate_text(self, prompt: str) -> str:
+    def generate_text(self, prompt: str, retrieval_context: str) -> str:
         pass

@@ -7,7 +7,7 @@ from app.core import models
 class ChromaDBAdapter(ports.DocumentRepositoryPort):
     def __init__(self):
         self.client = chromadb.Client()
-        self.collection = self.client.get_or_create_collection("documents")
+        self.collection = self.client.create_collection("documents")
 
     def save_document(self, document: models.Document) -> None:
         print(f"Document: {document}")
@@ -16,8 +16,8 @@ class ChromaDBAdapter(ports.DocumentRepositoryPort):
             documents=[document.content]
         )
 
-    def get_documents(self, query: str) -> List[models.Document]:
-        results = self.collection.query(query_texts=[query])
+    def get_documents(self, query: str, n_results: int = 2) -> List[models.Document]:
+        results = self.collection.query(query_texts=[query], n_results=n_results)
         print(query)
         print(f"Results: {results}")
         documents = []
