@@ -3,7 +3,7 @@ import openai
 from app.core import ports
 
 
-class OpenAIAdapter(ports.OpenAIPort):
+class OpenAIAdapter(ports.LlmPort):
     def __init__(self, api_key: str, model: str, max_tokens: int, temperature: float):
         self._openai_client = openai.OpenAI(api_key=api_key)
         self._model = model

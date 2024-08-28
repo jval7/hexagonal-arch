@@ -14,7 +14,7 @@ class DocumentRepositoryPort(ABC):
         pass
 
 
-class OpenAIPort(ABC):
+class LlmPort(ABC):
     @abstractmethod
     def generate_text(self, prompt: str, retrieval_context: str) -> str:
         pass

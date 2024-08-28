@@ -3,7 +3,7 @@ from app.core import ports
 
 
 class RAGService:
-    def __init__(self, document_repo: ports.DocumentRepositoryPort, openai_adapter: ports.OpenAIPort):
+    def __init__(self, document_repo: ports.DocumentRepositoryPort, openai_adapter: ports.LlmPort):
         self.document_repo = document_repo
         self.openai_adapter = openai_adapter
 

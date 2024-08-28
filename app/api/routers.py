@@ -19,4 +19,4 @@ def generate_answer(query: str, rag_service: usecases.RAGService = Depends(depen
 @rag_router.post("/save-document/")
 def save_document(document: DocumentInput, rag_service: usecases.RAGService = Depends(dependencies.RAGServiceSingleton.get_instance)):
     rag_service.save_document(content=document.content)
-    return {"status": "Document saved successfully"}
+    return {"status": "Document saved successfully"}, 201
