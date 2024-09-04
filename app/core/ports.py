@@ -10,7 +10,7 @@ class DocumentRepositoryPort(ABC):
         pass
 
     @abstractmethod
-    def get_documents(self, query: str) -> List[models.Document]:
+    def get_documents(self, query: str, n_results: int | None = None) -> List[models.Document]:
         pass
 
 

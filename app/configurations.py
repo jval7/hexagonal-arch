@@ -7,3 +7,4 @@ class Configs(pydantic_settings.BaseSettings):
     model: str
     max_tokens: int
     temperature: float
+    number_of_vectorial_results: int
