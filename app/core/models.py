@@ -9,3 +9,9 @@ def generate_uuid() -> str:
 class Document(pydantic.BaseModel):
     id: str = pydantic.Field(default_factory=generate_uuid)
     content: str
+
+
+class User(pydantic.BaseModel):
+    id: str = pydantic.Field(default_factory=generate_uuid)
+    username: str
+    password: str

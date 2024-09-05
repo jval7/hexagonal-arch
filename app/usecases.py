@@ -3,9 +3,11 @@ from app.core import ports
 
 
 class RAGService:
-    def __init__(self, document_repo: ports.DocumentRepositoryPort, openai_adapter: ports.LlmPort):
+    def __init__(self, document_repo: ports.DocumentRepositoryPort, openai_adapter: ports.LlmPort,
+                 db: ports.DatabasePort) -> None:
         self.document_repo = document_repo
         self.openai_adapter = openai_adapter
+        self.db = db
 
     def generate_answer(self, query: str) -> str:
         documents = self.document_repo.get_documents(query)
@@ -16,3 +18,6 @@ class RAGService:
     def save_document(self, content: str) -> None:
         document = Document(content=content)
         self.document_repo.save_document(document)
+
+    def sing_up(self, username: str, password: str) -> None:
+        self.db.save_user(username, password)

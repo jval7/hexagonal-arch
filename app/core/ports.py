@@ -18,3 +18,17 @@ class LlmPort(ABC):
     @abstractmethod
     def generate_text(self, prompt: str, retrieval_context: str) -> str:
         pass
+
+
+class DatabasePort(ABC):
+    @abstractmethod
+    def save_user(self, username: str, password: str) -> None:
+        pass
+
+    @abstractmethod
+    def get_user(self, username: str) -> models.User:
+        pass
+
+    @abstractmethod
+    def save_document(self, document: models.Document) -> None:
+        pass
