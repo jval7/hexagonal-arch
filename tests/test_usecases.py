@@ -18,10 +18,10 @@ class FakeLLM(ports.LlmPort):
 def test_should_save_document_when_calling_rag_service_save_method():
     # Arrange
     document_repo = Mock(spec=ports.DocumentRepositoryPort)
-    llm_mock = FakeLLM()
+    FakeLLM_ = FakeLLM()
 
     rag_service = usecases.RAGService(
-        document_repo=document_repo, openai_adapter=llm_mock
+        document_repo=document_repo, openai_adapter=FakeLLM_
     )
 
     # Act
@@ -31,13 +31,13 @@ def test_should_save_document_when_calling_rag_service_save_method():
 
     # Assert
     document_repo.save_document.assert_called_once()
-    assert len(llm_mock.prompt_history) == 0
+    assert len(FakeLLM_.prompt_history) == 0
 
 
 def test_should_generate_answer_when_calling_rag_service_generate_answer_method():
     # Arrange
     document_repo = Mock(spec=ports.DocumentRepositoryPort)
-    llm_mock = FakeLLM()
+    FakeLLM_ = FakeLLM()
 
     content1 = "this is a test fo save document in vectordatabase 1"
     content2 = "this is a test fo save document in vectordatabase 2"
@@ -49,7 +49,7 @@ def test_should_generate_answer_when_calling_rag_service_generate_answer_method(
     ]
 
     rag_service = usecases.RAGService(
-        document_repo=document_repo, openai_adapter=llm_mock
+        document_repo=document_repo, openai_adapter=FakeLLM_
     )
 
     # Act
@@ -57,6 +57,6 @@ def test_should_generate_answer_when_calling_rag_service_generate_answer_method(
 
     # Assert
     document_repo.get_documents.assert_called_once_with('test')
-    assert llm_mock.retrieval_context == retrieval_context
-    assert len(llm_mock.prompt_history) > 0
-    assert llm_mock.prompt_history[-1] == "test"
+    assert FakeLLM_.retrieval_context == retrieval_context
+    assert len(FakeLLM_.prompt_history) > 0
+    assert FakeLLM_.prompt_history[-1] == "test"
