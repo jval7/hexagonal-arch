@@ -4,24 +4,21 @@ from app import usecases
 from app.core import ports, models
 
 
-class FakeDocumentRepo(ports.DocumentRepositoryPort):
+class FakeLLM(ports.LlmPort):
     def __init__(self) -> None:
-        self._repo = {}
+        self.prompt_history = []
+        self.retrieval_context = ""
 
-    def save_document(self, document: models.Document) -> None:
-        _id = document.id
-        self._repo[_id] = document
-
-    def get_documents(
-        self, query: str, n_results: int | None = None
-    ) -> List[models.Document]:
-        return list(self._repo.values())
+    def generate_text(self, prompt: str, retrieval_context: str) -> str:
+        self.prompt_history.append(prompt)
+        self.retrieval_context = retrieval_context
+        return "Generated answer for: " + prompt
 
 
 def test_should_save_document_when_calling_rag_service_save_method():
     # Arrange
-    document_repo = FakeDocumentRepo()
-    llm_mock = Mock(spec=ports.LlmPort)
+    document_repo = Mock(spec=ports.DocumentRepositoryPort)
+    llm_mock = FakeLLM()
 
     rag_service = usecases.RAGService(
         document_repo=document_repo, openai_adapter=llm_mock
@@ -33,22 +30,24 @@ def test_should_save_document_when_calling_rag_service_save_method():
     )
 
     # Assert
-    documents = document_repo.get_documents(query="test")
-
-    assert len(documents) > 0
+    document_repo.save_document.assert_called_once()
+    assert len(llm_mock.prompt_history) == 0
 
 
 def test_should_generate_answer_when_calling_rag_service_generate_answer_method():
     # Arrange
-    document_repo = FakeDocumentRepo()
-    llm_mock = Mock(spec=ports.LlmPort)
+    document_repo = Mock(spec=ports.DocumentRepositoryPort)
+    llm_mock = FakeLLM()
 
     content1 = "this is a test fo save document in vectordatabase 1"
     content2 = "this is a test fo save document in vectordatabase 2"
     retrieval_context = " ".join([content1, content2])
 
-    document_repo.save_document(document=models.Document(content=content1))
-    document_repo.save_document(document=models.Document(content=content2))
+    document_repo.get_documents.return_value = [
+        models.Document(content=content1),
+        models.Document(content=content2),
+    ]
+
     rag_service = usecases.RAGService(
         document_repo=document_repo, openai_adapter=llm_mock
     )
@@ -57,6 +56,7 @@ def test_should_generate_answer_when_calling_rag_service_generate_answer_method(
     rag_service.generate_answer(query="test")
 
     # Assert
-    llm_mock.generate_text.assert_called_once_with(
-        prompt="test", retrieval_context=retrieval_context
-    )
+    document_repo.get_documents.assert_called_once_with('test')
+    assert llm_mock.retrieval_context == retrieval_context
+    assert len(llm_mock.prompt_history) > 0
+    assert llm_mock.prompt_history[-1] == "test"
