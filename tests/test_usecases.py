@@ -17,14 +17,21 @@ class FakeDocumentRepo(ports.DocumentRepositoryPort):
     ) -> List[models.Document]:
         return list(self._repo.values())
 
+class FakeLlmPort(ports.LlmPort):
+    def __init__(self) -> None:
+        self._history = []
+
+    def generate_text(self, prompt: str, retrieval_context: str) -> str:
+        self._history.append((prompt, retrieval_context))
+        return "Respuesta Mockeada"
 
 def test_should_save_document_when_calling_rag_service_save_method():
     # Arrange
-    document_repo = FakeDocumentRepo()
-    llm_mock = Mock(spec=ports.LlmPort)
+    document_repo = Mock(spec=ports.DocumentRepositoryPort)
+    llm_stub = FakeLlmPort()
 
     rag_service = usecases.RAGService(
-        document_repo=document_repo, openai_adapter=llm_mock
+        document_repo=document_repo, openai_adapter=llm_stub
     )
 
     # Act
@@ -33,30 +40,28 @@ def test_should_save_document_when_calling_rag_service_save_method():
     )
 
     # Assert
-    documents = document_repo.get_documents(query="test")
-
-    assert len(documents) > 0
+    document_repo.save_document.assert_called_once()
 
 
 def test_should_generate_answer_when_calling_rag_service_generate_answer_method():
     # Arrange
-    document_repo = FakeDocumentRepo()
-    llm_mock = Mock(spec=ports.LlmPort)
+    document_repo = Mock(spec=ports.DocumentRepositoryPort)
+    llm_stub = FakeLlmPort()
 
     content1 = "this is a test fo save document in vectordatabase 1"
     content2 = "this is a test fo save document in vectordatabase 2"
-    retrieval_context = " ".join([content1, content2])
 
-    document_repo.save_document(document=models.Document(content=content1))
-    document_repo.save_document(document=models.Document(content=content2))
+    document_repo.get_documents.return_value = [
+        models.Document(content=content1),
+        models.Document(content=content2),
+    ]
+
     rag_service = usecases.RAGService(
-        document_repo=document_repo, openai_adapter=llm_mock
+        document_repo=document_repo, openai_adapter=llm_stub
     )
 
     # Act
     rag_service.generate_answer(query="test")
 
     # Assert
-    llm_mock.generate_text.assert_called_once_with(
-        prompt="test", retrieval_context=retrieval_context
-    )
+    assert llm_stub._history[-1] == ("test", content1 + " " + content2)
