@@ -17,6 +17,7 @@ openai = "^1.41.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.8.0"
+coverage = "^7.6.1"
 
 [build-system]
 requires = ["poetry-core"]
